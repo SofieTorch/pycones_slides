@@ -20,7 +20,7 @@ transition: fade
 # enable MDC Syntax: https://sli.dev/features/mdc
 mdc: true
 layout: intro-image-right
-image: '/images/qr-tutorial.png'
+image: './images/qr-code-tutorial.png'
 ---
 
 # ¿Y si Python entendiera español?
@@ -40,7 +40,7 @@ The last comment block of each slide will be treated as slide notes. It will be 
 ---
 transition: fade
 layout: intro-image-right
-image: '/images/qr-tutorial.png'
+image: './images/qr-code-tutorial.png'
 ---
 
 # El plan de hoy
@@ -55,7 +55,7 @@ image: '/images/qr-tutorial.png'
 ---
 transition: fade
 layout: intro-image-right
-image: '/images/qr-tutorial.png'
+image: './images/qr-code-tutorial.png'
 ---
 
 # Antes de comenzar
@@ -67,7 +67,7 @@ image: '/images/qr-tutorial.png'
 ---
 transition: fade
 layout: intro-image-right
-image: '/images/qr-tutorial.png'
+image: './images/sofi.jpeg'
 ---
 
 # Sofi Toro
@@ -129,14 +129,29 @@ transition: fade
 
 ---
 transition: fade
+layout: center
 ---
 
 # Compilando CPython (3.9)
 
+1. `$ git clone --branch 3.9 https://github.com/python/cpython`
+2. `$ cd cpython`
+3. `$ ./configure --with-pydebug`
+4. `$ make -j2 -s`
+
+<v-click>
+
+🎉
 ```
-git clone --branch 3.9 https://github.com/python/cpython
-cd cpython
+./python
+Python 3.9.24+ (heads/3.9:9c4638d1b29, Oct 16 2025, 19:25:25) 
+[GCC 13.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> 
+
 ```
+
+</v-click>
 
 ---
 transition: fade
@@ -229,7 +244,7 @@ while_stmt[stmt_ty]:
   | 'while' a=named_expression ':' b=block c=[else_bl...
 ```
 
-<img src="/images/while-railroad-diag.png" />
+<img src="/images/while-railroad-diag.png" class="my-6"/>
 
 </v-click>
 
@@ -252,23 +267,14 @@ while_stmt[stmt_ty]:
 transition: fade
 ---
 
-# Regenerando el grammar
+# Regenerando en grammar
 
 <div class="mt-16"></div>
-
-<v-click>
-
-## `small_stmt`
-
-</v-click>
-
-<v-click>
 
 ```
 'pass' { _Py_Pass(EXTRA) }
 ```
 
-</v-click>
 
 ---
 transition: fade

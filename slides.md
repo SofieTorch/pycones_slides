@@ -64,7 +64,7 @@ image: './images/qr-slides.png'
 
 * Instalar WSL (si están en Windows)
 * Editor de texto listo
-* Preparar el repo de CPython (<Link to="9">Ver slide 9</Link>)
+* Preparar el repo de CPython (<Link to="8">Ver slide 8</Link>)
 
 <div class="absolute bottom-10">
   <a href="sofietorch.github.io/pycones_slides">sofietorch.github.io/pycones_slides</a>
@@ -95,39 +95,31 @@ transition: fade
 * La implementación "oficial" de Python
 * Cuando escribes `python` en la consola, CPython se ejecuta (si lo instalaste desde _python.org_)
 
----
-transition: fade
----
-
-# `cpython/`
-
-<v-clicks>
-
-|                           |                                           |
-| ------------------------- | ----------------------------------------- |
-| <kbd>Doc</kbd>            | Fuente de la documentación                |
-| <kbd>Grammar</kbd>        | Definición del lenguaje                   |
-| <kbd>Lib</kbd>            | Los módulos estándar escritos en Python   |
-| <kbd>Modules</kbd>        | Los módulos estándar escritos en C        |
-| <kbd>Objects</kbd>        | Object model y tipos core                 |
-| <kbd>Parser</kbd>         | El parser de Python                       |
-| <kbd>Python</kbd>         | El intérprete de CPython                  |
-
-</v-clicks>
+<v-click>
+<img src="./images/cpython-repo.png" class="h-64"/>
+</v-click>
 
 ---
 transition: fade
+layout: center
 ---
 
-# ¿Y qué más?
+# ¿Cómo funciona?
 
-* <span v-mark.highlight.green>Compila</span> de Python a bytecode (archivos `.pyc` ocultos)
-* Interpreta y ejecuta el bytecode con la PVM (Python Virtual Machine)
-  
->Fun fact: el bytecode se guarda en caché para ser ejecutado, por lo que si corres una app Python dos veces sin cambiar el código, la 2da vez siempre será más rápida.
+* **Tokenizing:** Separa el código Python en piezas de instrucciones (tokens)
+* <span v-mark.highlight.green="2"><b>Parsing:</b></span> Usa la gramática para construir un Abstract Syntax Tree (AST)
+* **Compiling:** Convierte el AST a bytecode (archivos `.pyc` ocultos)
+* **Executing:** Interpreta y ejecuta el bytecode con la Python Virtual Machine (PVM)
+
+<v-click>
+
+>Fun fact: el bytecode se guarda en caché para ser ejecutado, por lo que si corres una app Python dos veces sin cambiar el código, la segunda vez siempre será más rápida.
+
+</v-click>
 
 ---
 transition: fade
+layout: center
 ---
 
 # ¿Por qué en C?
@@ -173,15 +165,36 @@ Type "help", "copyright", "credits" or "license" for more information.
 transition: fade
 ---
 
+# `cpython/`
+
+<v-clicks>
+
+|                           |                                           |
+| ------------------------- | ----------------------------------------- |
+| <kbd>Doc</kbd>            | Fuente de la documentación                |
+| <kbd>Grammar</kbd>        | Definición del lenguaje                   |
+| <kbd>Lib</kbd>            | Los módulos estándar escritos en Python   |
+| <kbd>Modules</kbd>        | Los módulos estándar escritos en C        |
+| <kbd>Objects</kbd>        | Object model y tipos core                 |
+| <kbd>Parser</kbd>         | El parser de Python                       |
+| <kbd>Python</kbd>         | El intérprete de CPython                  |
+
+</v-clicks>
+
+---
+transition: fade
+layout: center
+---
+
 # The grammar file
 
 `Grammar/python.gram` Define las reglas para la estructura del lenguaje.
 
-* \* para repetir
-* \+ para al menos una repetición
-* [] para partes opcionales
-* | para alternativas
-* () para agrupar
+* `*` para repetir
+* `+` para al menos una repetición
+* `[]` para partes opcionales
+* `|` para alternativas
+* `()` para agrupar
 
 ---
 transition: fade
@@ -288,7 +301,7 @@ layout: center
 
 `python.gram` > `small_stmt`
 
-````md magic-move {lines: true}
+````md magic-move [python.gram]
 ```txt [python.gram] {*|7}
 small_stmt[stmt_ty] (memo):
 | assignment
@@ -375,7 +388,7 @@ layout: center
 
 <div class="mt-6"></div>
 
-````md magic-move
+````md magic-move [python.gram]
 ```txt [python.gram] {*|4,10}
 small_stmt[stmt_ty] (memo):
 | assignment
@@ -389,7 +402,7 @@ return_stmt[stmt_ty]:
 | 'return' a=[star_expressions] { _Py_Return(a, EXTRA) }
 ```
 
-```txt [python.gram] {4,10-11|*}
+```txt [python.gram] {4,10-11}
 small_stmt[stmt_ty] (memo):
 | assignment
 | e=star_expressions { _Py_Expr(e, EXTRA) }
@@ -405,7 +418,8 @@ return_stmt[stmt_ty]:
 ````
 
 <v-click>
-Recompilar (again)
+
+Recompilar (otra vez)
 ```bash
 $ make regen-pegen
 $ ./configure --with-pydebug
@@ -413,6 +427,134 @@ $ make -j2 -s
 ```
 
 </v-click>
+
+---
+transition: fade
+layout: center
+---
+
+# Cambiando Python a español >:)
+
+<img src="./images/elmo-fire.gif" class="mx-auto h-64"/>
+
+
+---
+transition: fade
+---
+
+# Intro a C para Python devs
+
+---
+transition: fade
+---
+
+# Cambiando funciones
+
+<div class="mt-8"></div>
+
+````md magic-move [bltinmodule.c]
+```c [bltinmodule.c] {*|6|6}
+static PyMethodDef builtin_methods[] = {
+    {"__build_class__", (PyCFunction)(void(*)(void))builtin___build_class__,
+     METH_FASTCALL | METH_KEYWORDS, build_class_doc},
+    ...
+    BUILTIN_POW_METHODDEF
+    {"print",           (PyCFunction)(void(*)(void))builtin_print,      METH_FASTCALL | METH_KEYWORDS, print_doc},
+    BUILTIN_REPR_METHODDEF
+};
+```
+
+
+```c [bltinmodule.c] {6,7}
+static PyMethodDef builtin_methods[] = {
+  {"__build_class__", (PyCFunction)(void(*)(void))builtin___build_class__,
+     METH_FASTCALL | METH_KEYWORDS, build_class_doc},
+    ...
+    BUILTIN_POW_METHODDEF
+    {"print",           (PyCFunction)(void(*)(void))builtin_print,      METH_FASTCALL | METH_KEYWORDS, print_doc},
+    {"imprimir",           (PyCFunction)(void(*)(void))builtin_imprimir,      METH_FASTCALL | METH_KEYWORDS, print_doc},
+    BUILTIN_REPR_METHODDEF
+};
+```
+````
+
+<arrow v-click="[2]" x1="600" y1="290" x2="535" y2="250" color="#953" width="2" arrowSize="1" />
+
+---
+transition: fade
+---
+
+# Cambiando funciones
+
+Creamos una nueva función para nuestro `imprimir`, basándonos en el `print` actual
+
+````md magic-move [bltinmodule.c]
+```c [bltinmodule.c] {*|2,5}
+static PyObject *
+builtin_print(PyObject *self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames)
+{
+    static const char * const _keywords[] = {"sep", "end", "file", "flush", 0};
+    static struct _PyArg_Parser _parser = {"|OOOp:print", _keywords, 0};
+    PyObject *sep = NULL, *end = NULL, *file = NULL;
+    int flush = 0;
+    int i, err;
+
+    ...
+
+    if (flush) {
+        PyObject *tmp = _PyObject_CallMethodIdNoArgs(file, &PyId_flush);
+        if (tmp == NULL)
+            return NULL;
+        Py_DECREF(tmp);
+    }
+
+    Py_RETURN_NONE;
+}
+
+```
+
+```c [bltinmodule.c] {2,5|*}
+static PyObject *
+builtin_imprimir(PyObject *self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames)
+{
+    static const char * const _keywords[] = {"sep", "end", "file", "flush", 0};
+    static struct _PyArg_Parser _parser = {"|OOOp:imprimir", _keywords, 0};
+    PyObject *sep = NULL, *end = NULL, *file = NULL;
+    int flush = 0;
+    int i, err;
+
+    ...
+
+    if (flush) {
+        PyObject *tmp = _PyObject_CallMethodIdNoArgs(file, &PyId_flush);
+        if (tmp == NULL)
+            return NULL;
+        Py_DECREF(tmp);
+    }
+
+    Py_RETURN_NONE;
+}
+
+```
+````
+
+---
+transition: fade
+layout: intro-image-right
+---
+
+# Cambiando funciones
+
+<div class="mt-8"></div>
+
+Regeneramos los built-ins
+
+```bash
+$ make regen-all
+```
+
+<div class="mt-8"></div>
+Y recompilamos ;)
 
 ---
 transition: fade

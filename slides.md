@@ -46,7 +46,6 @@ image: 'https://raw.githubusercontent.com/SofieTorch/pycones_slides/refs/heads/m
 * Intro a CPython
 * Compilar nuestro propio Python
 * ¿Cómo funciona la grammar?
-* (Pequeña) Intro a C
 * Cambiar keywords y funciones a español
 * Perderle el miedo a CPython :)
 
@@ -76,12 +75,13 @@ layout: intro-image-right
 image: 'https://raw.githubusercontent.com/SofieTorch/pycones_slides/refs/heads/master/images/sofi.jpeg'
 ---
 
-# Sofi Toro
+# Sofi Toro 🇧🇴
 
-* Software engineer @Synics
+* Software engineer @Synics 🇨🇭
 * Former Google Developer Student Club Lead
 * Former organizer @GDG Cochabamba, JS Bolivia & Hub Boliviano de IA
-* Me gusta cantar, ir de hiking y charlar :)
+* Me gusta cantar, ir de hiking y charlar :) ⛰️
+* Instagram: `__sofi__.py`
 
 ---
 transition: fade
@@ -106,14 +106,14 @@ layout: center
 
 # ¿Cómo funciona?
 
-* **Tokenizing:** Separa el código Python en piezas de instrucciones (tokens)
-* <span v-mark.highlight.green="2"><b>Parsing:</b></span> Usa la gramática para construir un Abstract Syntax Tree (AST)
-* **Compiling:** Convierte el AST a bytecode (archivos `.pyc` ocultos)
-* **Executing:** Interpreta y ejecuta el bytecode con la Python Virtual Machine (PVM)
+* **🧩 Tokenizing:** Separa el código Python en piezas de instrucciones (tokens)
+* <span v-mark.highlight.green="2"><b>🌳 Parsing:</b></span> Usa la gramática para construir un Abstract Syntax Tree (AST)
+* **🔢 Compiling:** Convierte el AST a bytecode (archivos `.pyc` ocultos)
+* **📀 Executing:** Interpreta y ejecuta el bytecode con la Python Virtual Machine (PVM)
 
 <v-click>
 
->Fun fact: el bytecode se guarda en caché para ser ejecutado, por lo que si corres una app Python dos veces sin cambiar el código, la segunda vez siempre será más rápida.
+>_Fun fact:_ el bytecode se guarda en caché para ser ejecutado, por lo que si corres una app Python dos veces sin cambiar el código, la segunda vez siempre será más rápida.
 
 </v-click>
 
@@ -188,7 +188,9 @@ layout: center
 
 # The grammar file
 
-`Grammar/python.gram` Define las reglas para la estructura del lenguaje.
+`Grammar/python.gram`
+
+Define las reglas para la estructura del lenguaje
 
 * `*` para repetir
 * `+` para al menos una repetición
@@ -208,7 +210,7 @@ layout: intro-image-right
 * Debe tener al menos un shot de espresso, pero puede tener varios shots
 * Puede tener leche, pero es opcional
 * Puede tener agua, pero es opcional
-* Si tiene leche, la leche puede ser entera, deslactosada o de soya.
+* Si tiene leche, la leche puede ser entera, descremada o de soya.
 
 <v-click>
 
@@ -266,7 +268,7 @@ else:
 
 <v-click>
 
-`while_stmt`:
+`python.grammar` > `while_stmt`:
 
 ```
 while_stmt[stmt_ty]:
@@ -375,7 +377,7 @@ $ ./python
 >>> def boo():
 ...    pasar
 ...
->>> pasar()
+>>> boo()
 >>>
 ```
 
@@ -437,23 +439,23 @@ layout: center
 
 <img src="./images/elmo-fire.gif" class="mx-auto h-64"/>
 
+<span class="mx-auto">
+
+`if` => `si` | `else` => `sino` | `for` => `para` | `while` => `mientras` | `in` => `en`
+
+</span>
 
 ---
 transition: fade
----
-
-# Intro a C para Python devs
-
----
-transition: fade
+layout: center
 ---
 
 # Cambiando funciones
 
-<div class="mt-8"></div>
+`bltinmodule.c` > `builtin_methods`
 
 ````md magic-move [bltinmodule.c]
-```c [bltinmodule.c] {*|6|6}
+```c [bltinmodule.c] {*|6}
 static PyMethodDef builtin_methods[] = {
     {"__build_class__", (PyCFunction)(void(*)(void))builtin___build_class__,
      METH_FASTCALL | METH_KEYWORDS, build_class_doc},
@@ -472,80 +474,23 @@ static PyMethodDef builtin_methods[] = {
     ...
     BUILTIN_POW_METHODDEF
     {"print",           (PyCFunction)(void(*)(void))builtin_print,      METH_FASTCALL | METH_KEYWORDS, print_doc},
-    {"imprimir",           (PyCFunction)(void(*)(void))builtin_imprimir,      METH_FASTCALL | METH_KEYWORDS, print_doc},
+    {"imprimir",           (PyCFunction)(void(*)(void))builtin_print,      METH_FASTCALL | METH_KEYWORDS, print_doc},
     BUILTIN_REPR_METHODDEF
 };
 ```
 ````
 
-<arrow v-click="[2]" x1="600" y1="290" x2="535" y2="250" color="#953" width="2" arrowSize="1" />
-
----
-transition: fade
----
-
-# Cambiando funciones
-
-Creamos una nueva función para nuestro `imprimir`, basándonos en el `print` actual
-
-````md magic-move [bltinmodule.c]
-```c [bltinmodule.c] {*|2,5}
-static PyObject *
-builtin_print(PyObject *self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames)
-{
-    static const char * const _keywords[] = {"sep", "end", "file", "flush", 0};
-    static struct _PyArg_Parser _parser = {"|OOOp:print", _keywords, 0};
-    PyObject *sep = NULL, *end = NULL, *file = NULL;
-    int flush = 0;
-    int i, err;
-
-    ...
-
-    if (flush) {
-        PyObject *tmp = _PyObject_CallMethodIdNoArgs(file, &PyId_flush);
-        if (tmp == NULL)
-            return NULL;
-        Py_DECREF(tmp);
-    }
-
-    Py_RETURN_NONE;
-}
-
-```
-
-```c [bltinmodule.c] {2,5|*}
-static PyObject *
-builtin_imprimir(PyObject *self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames)
-{
-    static const char * const _keywords[] = {"sep", "end", "file", "flush", 0};
-    static struct _PyArg_Parser _parser = {"|OOOp:imprimir", _keywords, 0};
-    PyObject *sep = NULL, *end = NULL, *file = NULL;
-    int flush = 0;
-    int i, err;
-
-    ...
-
-    if (flush) {
-        PyObject *tmp = _PyObject_CallMethodIdNoArgs(file, &PyId_flush);
-        if (tmp == NULL)
-            return NULL;
-        Py_DECREF(tmp);
-    }
-
-    Py_RETURN_NONE;
-}
-
-```
-````
-
----
-transition: fade
-layout: intro-image-right
----
-
-# Cambiando funciones
-
 <div class="mt-8"></div>
+
+
+---
+transition: fade
+layout: center
+---
+
+# Cambiando funciones
+
+<div class="mt-4"></div>
 
 Regeneramos los built-ins
 
@@ -553,8 +498,159 @@ Regeneramos los built-ins
 $ make regen-all
 ```
 
-<div class="mt-8"></div>
+<div class="mt-4"></div>
 Y recompilamos ;)
+
+<div class="mt-8"></div>
+
+---
+transition: fade
+layout: center
+---
+
+# Cambiando funciones
+
+`bltinmodule.c` > `SETBUILTIN`
+
+````md magic-move [bltinmodule.c]
+```c [bltinmodule.c] {*|7}
+#define SETBUILTIN(NAME, OBJECT) \
+    if (PyDict_SetItemString(dict, NAME, (PyObject *)OBJECT) < 0)       \
+        return NULL;                                                    \
+    ADD_TO_ALL(OBJECT)
+    ...
+    SETBUILTIN("map",                   &PyMap_Type);
+    SETBUILTIN("range",                 &PyRange_Type);
+    ...
+    SETBUILTIN("set",                   &PySet_Type);
+    debug = PyBool_FromLong(config->optimization_level == 0);
+    if (PyDict_SetItemString(dict, "__debug__", debug) < 0) {
+        Py_DECREF(debug);
+        return NULL;
+    }
+    Py_DECREF(debug);
+
+    return mod;
+#undef ADD_TO_ALL
+#undef SETBUILTIN
+}
+```
+
+
+```c [bltinmodule.c] {7,8}
+#define SETBUILTIN(NAME, OBJECT) \
+    if (PyDict_SetItemString(dict, NAME, (PyObject *)OBJECT) < 0)       \
+        return NULL;                                                    \
+    ADD_TO_ALL(OBJECT)
+    ...
+    SETBUILTIN("map",                   &PyMap_Type);
+    SETBUILTIN("range",                 &PyRange_Type);
+    SETBUILTIN("rango",                 &PyRange_Type);
+    ...
+    SETBUILTIN("set",                   &PySet_Type);
+    debug = PyBool_FromLong(config->optimization_level == 0);
+    if (PyDict_SetItemString(dict, "__debug__", debug) < 0) {
+        Py_DECREF(debug);
+        return NULL;
+    }
+    Py_DECREF(debug);
+
+    return mod;
+#undef ADD_TO_ALL
+#undef SETBUILTIN
+}
+```
+````
+
+<div class="mt-8"></div>
+
+---
+transition: fade
+layout: center
+---
+
+# Cambiando funciones
+
+`object.c` > `INIT_TYPE`
+
+````md magic-move [object.c]
+```c {*|10}
+#define INIT_TYPE(TYPE, NAME) \
+    do { \
+        if (PyType_Ready(TYPE) < 0) { \
+            return _PyStatus_ERR("Can't initialize " NAME " type"); \
+        } \
+    } while (0)
+    INIT_TYPE(&PyBaseObject_Type, "object");
+    ...
+    INIT_TYPE(&PySuper_Type, "super");
+    INIT_TYPE(&PyRange_Type, "range");
+    ...    
+    INIT_TYPE(&_PyInterpreterID_Type, "interpreter ID");
+    return _PyStatus_OK();
+
+#undef INIT_TYPE
+}
+```
+
+```c {10,11}
+#define INIT_TYPE(TYPE, NAME) \
+    do { \
+        if (PyType_Ready(TYPE) < 0) { \
+            return _PyStatus_ERR("Can't initialize " NAME " type"); \
+        } \
+    } while (0)
+    INIT_TYPE(&PyBaseObject_Type, "object");
+    ...
+    INIT_TYPE(&PySuper_Type, "super");
+    INIT_TYPE(&PyRange_Type, "range");
+    INIT_TYPE(&PyRange_Type, "rango");
+    ...    
+    INIT_TYPE(&_PyInterpreterID_Type, "interpreter ID");
+    return _PyStatus_OK();
+
+#undef INIT_TYPE
+}
+```
+````
+
+---
+transition: fade
+layout: center
+---
+
+# Tokenizer
+
+Crea un archivo `.py` con nuestro código en español.
+
+Para ver que nuestras keywords son reconocidas usamos el módulo `tokenize`
+
+```bash
+$ ./python -m tokenize -e your_file.py
+```
+
+<div class="pt-12"></div>
+
+
+---
+transition: fade
+layout: quote
+---
+
+# 🎉 ¡Felicidades! Creaste tu propia versión de Python, en español 🥳
+
+<img src="./images/gatito-bailando.gif" class="h-46"/>
+
+
+---
+transition: fade
+layout: quote
+---
+
+# ¿Qué sigue?
+
+* CPython Internals - Anthony Shaw
+* 
 
 ---
 transition: fade

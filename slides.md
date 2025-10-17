@@ -20,7 +20,7 @@ transition: fade
 # enable MDC Syntax: https://sli.dev/features/mdc
 mdc: true
 layout: intro-image-right
-image: './images/qr-slides.png'
+image: 'https://raw.githubusercontent.com/SofieTorch/pycones_slides/refs/heads/master/images/qr-slides.png'
 ---
 
 # ¿Y si Python entendiera español?
@@ -38,7 +38,7 @@ The last comment block of each slide will be treated as slide notes. It will be 
 ---
 transition: fade
 layout: intro-image-right
-image: './images/qr-slides.png'
+image: 'https://raw.githubusercontent.com/SofieTorch/pycones_slides/refs/heads/master/images/qr-slides.png'
 ---
 
 # El plan de hoy
@@ -57,7 +57,7 @@ image: './images/qr-slides.png'
 ---
 transition: fade
 layout: intro-image-right
-image: './images/qr-slides.png'
+image: 'https://raw.githubusercontent.com/SofieTorch/pycones_slides/refs/heads/master/images/qr-slides.png'
 ---
 
 # Antes de comenzar
@@ -73,7 +73,7 @@ image: './images/qr-slides.png'
 ---
 transition: fade
 layout: intro-image-right
-image: './images/sofi.jpeg'
+image: 'https://raw.githubusercontent.com/SofieTorch/pycones_slides/refs/heads/master/images/sofi.jpeg'
 ---
 
 # Sofi Toro

@@ -20,7 +20,7 @@ transition: fade
 # enable MDC Syntax: https://sli.dev/features/mdc
 mdc: true
 layout: intro-image-right
-image: './images/qr-code-tutorial.png'
+image: './images/qr-slides.png'
 ---
 
 # ¿Y si Python entendiera español?
@@ -28,9 +28,7 @@ image: './images/qr-code-tutorial.png'
 Introducción práctica a modificar CPython
 
 <div class="absolute bottom-10">
-  <span class="font-700">
-    Sofia Toro
-  </span>
+  <a href="sofietorch.github.io/pycones_slides">sofietorch.github.io/pycones_slides</a>
 </div>
 
 <!--
@@ -40,7 +38,7 @@ The last comment block of each slide will be treated as slide notes. It will be 
 ---
 transition: fade
 layout: intro-image-right
-image: './images/qr-code-tutorial.png'
+image: './images/qr-slides.png'
 ---
 
 # El plan de hoy
@@ -52,17 +50,25 @@ image: './images/qr-code-tutorial.png'
 * Cambiar keywords y funciones a español
 * Perderle el miedo a CPython :)
 
+<div class="absolute bottom-10">
+  <a href="sofietorch.github.io/pycones_slides">sofietorch.github.io/pycones_slides</a>
+</div>
+
 ---
 transition: fade
 layout: intro-image-right
-image: './images/qr-code-tutorial.png'
+image: './images/qr-slides.png'
 ---
 
 # Antes de comenzar
 
 * Instalar WSL (si están en Windows)
-* Fork y clone al repo de CPython
-* Editor listo
+* Editor de texto listo
+* Preparar el repo de CPython (<Link to="9">Ver slide 9</Link>)
+
+<div class="absolute bottom-10">
+  <a href="sofietorch.github.io/pycones_slides">sofietorch.github.io/pycones_slides</a>
+</div>
 
 ---
 transition: fade
@@ -87,17 +93,27 @@ transition: fade
 
 * Runtime/entorno de ejecución de Python
 * La implementación "oficial" de Python
-* Cuando escribes `python` en la consola, CPython se ejecuta (si lo instalaste desde python.org)
+* Cuando escribes `python` en la consola, CPython se ejecuta (si lo instalaste desde _python.org_)
 
 ---
 transition: fade
 ---
 
-# Explorando el repo
+# `cpython/`
 
-* Usaremos la versión 3.9 de Python
-* La implementación "oficial" de Python
-* Cuando escribes `python` en la consola, CPython se ejecuta (si lo instalaste desde python.org)
+<v-clicks>
+
+|                           |                                           |
+| ------------------------- | ----------------------------------------- |
+| <kbd>Doc</kbd>            | Fuente de la documentación                |
+| <kbd>Grammar</kbd>        | Definición del lenguaje                   |
+| <kbd>Lib</kbd>            | Los módulos estándar escritos en Python   |
+| <kbd>Modules</kbd>        | Los módulos estándar escritos en C        |
+| <kbd>Objects</kbd>        | Object model y tipos core                 |
+| <kbd>Parser</kbd>         | El parser de Python                       |
+| <kbd>Python</kbd>         | El intérprete de CPython                  |
+
+</v-clicks>
 
 ---
 transition: fade
@@ -143,7 +159,7 @@ layout: center
 
 🎉
 ```
-./python
+$ ./python
 Python 3.9.24+ (heads/3.9:9c4638d1b29, Oct 16 2025, 19:25:25) 
 [GCC 13.3.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
@@ -265,16 +281,138 @@ while_stmt[stmt_ty]:
 
 ---
 transition: fade
+layout: center
 ---
 
-# Regenerando en grammar
+# Regenerando la gramática
 
-<div class="mt-16"></div>
+`python.gram` > `small_stmt`
+
+````md magic-move {lines: true}
+```txt [python.gram] {*|7}
+small_stmt[stmt_ty] (memo):
+| assignment
+| e=star_expressions { _Py_Expr(e, EXTRA) }
+| &'return' return_stmt
+| &('import' | 'from') import_stmt
+| &'raise' raise_stmt
+| 'pass' { _Py_Pass(EXTRA) }
+| &'del' del_stmt
+| &'yield' yield_stmt
+| &'assert' assert_stmt
+| 'break' { _Py_Break(EXTRA) }
+| 'continue' { _Py_Continue(EXTRA) }
+| &'global' global_stmt
+| &'nonlocal' nonlocal_stmt
+```
+
+```txt [python.gram] {7}
+small_stmt[stmt_ty] (memo):
+| assignment
+| e=star_expressions { _Py_Expr(e, EXTRA) }
+| &'return' return_stmt
+| &('import' | 'from') import_stmt
+| &'raise' raise_stmt
+| ('pass' | 'pasar') { _Py_Pass(EXTRA) }
+| &'del' del_stmt
+| &'yield' yield_stmt
+| &'assert' assert_stmt
+| 'break' { _Py_Break(EXTRA) }
+| 'continue' { _Py_Continue(EXTRA) }
+| &'global' global_stmt
+| &'nonlocal' nonlocal_stmt
+```
+````
+
+---
+transition: fade
+layout: center
+---
+
+# Regenerando la gramática
+
+<div class="mt-6"></div>
+
+Regenerar el parser
 
 ```
-'pass' { _Py_Pass(EXTRA) }
+$ make regen-pegen
 ```
 
+Recompilar Python
+
+```
+$ ./configure --with-pydebug
+$ make -j2 -s
+```
+
+---
+transition: fade
+layout: center
+---
+
+# Regenerando la gramática
+
+<div class="mt-6"></div>
+
+Corriendo Python
+
+```bash
+$ ./python
+>>> def boo():
+...    pasar
+...
+>>> pasar()
+>>>
+```
+
+---
+transition: fade
+layout: center
+---
+
+# "Referenced" statements
+
+<div class="mt-6"></div>
+
+````md magic-move
+```txt [python.gram] {*|4,10}
+small_stmt[stmt_ty] (memo):
+| assignment
+| e=star_expressions { _Py_Expr(e, EXTRA) }
+| &'return' return_stmt
+| &('import' | 'from') import_stmt
+
+...
+
+return_stmt[stmt_ty]:
+| 'return' a=[star_expressions] { _Py_Return(a, EXTRA) }
+```
+
+```txt [python.gram] {4,10-11|*}
+small_stmt[stmt_ty] (memo):
+| assignment
+| e=star_expressions { _Py_Expr(e, EXTRA) }
+| &('return'|'retornar') return_stmt
+| &('import' | 'from') import_stmt
+
+...
+
+return_stmt[stmt_ty]:
+| 'return' a=[star_expressions] { _Py_Return(a, EXTRA) }
+| 'retornar' a=[star_expressions] { _Py_Return(a, EXTRA) }
+```
+````
+
+<v-click>
+Recompilar (again)
+```bash
+$ make regen-pegen
+$ ./configure --with-pydebug
+$ make -j2 -s
+```
+
+</v-click>
 
 ---
 transition: fade
@@ -702,6 +840,9 @@ $$
 
 [Learn more](https://sli.dev/features/latex)
 
+---
+dragPos:
+  square: 691,32,167,_,-16
 ---
 
 # Diagrams
